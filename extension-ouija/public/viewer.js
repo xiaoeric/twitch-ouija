@@ -54,11 +54,26 @@ function logSuccess(hex, status) {
   twitch.rig.log('EBS request returned '+hex+' ('+status+')');
 }
 
+function drawViz() {
+  const margin = {left: 4, right: 4, top: 4, bottom: 4};
+  const width = 318 - margin.left - margin.right;
+  // Full height is 496
+  const height = 300 - margin.top - margin.bottom;
+
+  var xAxis = d3.scaleBand().range([0, width]).padding(0.1);
+  var yAxis = d3.scaleLinear().range([height, 0]);
+
+  var svg = d3.select(".viz").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+  function update(data) {
+    const trans = d3.transition().duration(500);
+  }
+}
+
 $(function () {
-  // when we click the cycle button
-  $('#cycle').click(function () {
-  if(!token) { return twitch.rig.log('Not authorized'); }
-    twitch.rig.log('Requesting a color cycle');
-    $.ajax(requests.set);
-  });
+
 });
