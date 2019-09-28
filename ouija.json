@@ -1,7 +1,7 @@
 {
   "allowHttpBackend": false,
   "backendCommand": "node backend -c \"qowtnsymy0rvl47yc58apv6e8weifh\" -s \"bTHtZBau4ifw7h0sBHPIMQBmkh87bLtcs/DQkVzrcow=\"",
-  "backendFolderName": "extension-getting-started\\services",
+  "backendFolderName": "extension-getting-ouija\\services",
   "certificateExceptions": [],
   "extensionViews": [
     {
@@ -77,7 +77,7 @@
     "whitelistedPanelUrls": []
   },
   "frontendCommand": "",
-  "frontendFolderName": "extension-getting-started\\public",
+  "frontendFolderName": "extension-ouija\\public",
   "name": "ouija",
   "version": 1
 }
