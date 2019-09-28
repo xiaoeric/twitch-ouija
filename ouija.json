@@ -3,9 +3,31 @@
   "backendCommand": "node backend -c \"qowtnsymy0rvl47yc58apv6e8weifh\" -s \"bTHtZBau4ifw7h0sBHPIMQBmkh87bLtcs/DQkVzrcow=\"",
   "backendFolderName": "extension-getting-started\\services",
   "certificateExceptions": [],
-  "extensionViews": [],
-  "frontendCommand": "",
-  "frontendFolderName": "extension-getting-started\\public",
+  "extensionViews": [
+    {
+      "id": "1",
+      "label": "main",
+      "channelId": "58290981",
+      "configurationAnchor": "panel",
+      "displayChannelName": "alpha2275",
+      "type": "panel",
+      "features": {
+        "isBitsEnabled": false,
+        "isChatEnabled": false,
+        "isSubscriptionStatusAvailable": false
+      },
+      "linked": false,
+      "linkedUserId": "",
+      "mode": "viewer",
+      "isPopout": false,
+      "role": "Broadcaster",
+      "orientation": "Portrait",
+      "frameSize": {
+        "width": 1280,
+        "height": 720
+      }
+    }
+  ],
   "manifest": {
     "anchor": "panel",
     "assetUrls": [],
@@ -41,19 +63,21 @@
       "panel": "https://localhost:8080/panel.html"
     },
     "views": {
-      "config": {
-        "canLinkExternalContent": false,
-        "viewerUrl": "https://localhost:8080/config.html"
-      },
       "panel": {
-        "canLinkExternalContent": false,
+        "viewerUrl": "https://localhost:8080/panel.html",
         "height": 300,
-        "viewerUrl": "https://localhost:8080/panel.html"
+        "canLinkExternalContent": false
+      },
+      "config": {
+        "viewerUrl": "https://localhost:8080/config.html",
+        "canLinkExternalContent": false
       }
     },
     "whitelistedConfigUrls": [],
     "whitelistedPanelUrls": []
   },
+  "frontendCommand": "",
+  "frontendFolderName": "extension-getting-started\\public",
   "name": "ouija",
   "version": 1
 }
