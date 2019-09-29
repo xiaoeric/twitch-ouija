@@ -1,11 +1,7 @@
 const fs = require('fs');
-const Hapi = require('hapi');
 const path = require('path');
-const Boom = require('boom');
 const color = require('color');
 const ext = require('commander');
-const jsonwebtoken = require('jsonwebtoken');
-// const request = require('request');
 
 // The developer rig uses self-signed certificates.  Node doesn't accept them
 // by default.  Do not use this in production.
@@ -39,32 +35,8 @@ ext.
   option('-c, --client-id <client_id>', 'Extension client ID').
   parse(process.argv);
 
-const serverOptions = {
-  host: 'localhost',
-  port: 8081,
-  routes: {
-    cors: {
-      origin: ['*']
-    }
-  }
-};
-const serverPathRoot = path.resolve(__dirname, '..', 'conf', 'server');
-if (fs.existsSync(serverPathRoot + '.crt') && fs.existsSync(serverPathRoot + '.key')) {
-  serverOptions.tls = {
-    // If you need a certificate, execute "npm run cert".
-    cert: fs.readFileSync(serverPathRoot + '.crt'),
-    key: fs.readFileSync(serverPathRoot + '.key')
-  };
-}
-const server = new Hapi.Server(serverOptions);
-const io = require("socket.io")(server.listener);
+const io = require("socket.io")(process.env.PORT || 80);
 
-(async () => {
-  // Handle a viewer request to cycle the color.
-  // Start the server.
-  await server.start();
-  console.log(STRINGS.serverStarted, server.info.uri);
-})();
 
 function usingValue (name) {
   return `Using environment variable for ${name}`;
