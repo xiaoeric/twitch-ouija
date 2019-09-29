@@ -69,7 +69,7 @@ function logSuccess(hex, status) {
   twitch.rig.log('EBS request returned '+hex+' ('+status+')');
 }
 
-var socket = io("http://localhost:8081");
+var socket = io("https://twitch-ouija.herokuapp.com:80");
 
 function votingFinished() {
   disableVoting();

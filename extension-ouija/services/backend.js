@@ -41,7 +41,7 @@ ext.
 
 const serverOptions = {
   host: 'localhost',
-  port: 8081,
+  port: process.env.PORT || 80,
   routes: {
     cors: {
       origin: ['*']
