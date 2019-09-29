@@ -42,7 +42,7 @@ function onMessageHandler (target, context, msg, self) {
   var array = msg.split(' ');
   const commandName = array[0];
   // const commandName = msg.trim();
-  userIn = array [1];
+  userIn = array[1].toLowerCase();
 
   if (ouijaOn === false && commandName === '!ouija') {
     if (userIn === "start"){
@@ -87,7 +87,7 @@ function chooseAndReset(target) {
   for (var key in dict) {
     if (dict[key] > max) {
       max = dict[key];
-      maxKey = key.toLowerCase();
+      maxKey = key;
     }
   }
   for (key in dict) {
