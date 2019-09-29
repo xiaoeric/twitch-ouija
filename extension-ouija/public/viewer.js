@@ -178,6 +178,7 @@ $(function () {
 
   socket.on("voting start", function(word) {
     enableVoting(word);
+    $(".num").text(10);
   });
 
   socket.on("voting end", function(ignore) {
@@ -187,6 +188,8 @@ $(function () {
   socket.on("update", function(data) {
     var max = d3.max(data, i => i.count);
     max = (max === 0) ? 1 : max;
+
+    $(".num").text(parseInt($(".num").text()) - 1);
     
     update(data.map(i => { return {'letter': i.letter, 'count': 100 * i.count / max} }).sort((a, b) => (a.count < b.count) ? 1 : -1).slice(0, 5).reverse());
   })
