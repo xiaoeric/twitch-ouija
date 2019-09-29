@@ -50,7 +50,7 @@ twitch.onAuthorized(function (auth) {
   tuid = auth.userId;
 
   // enable the button
-  $('#cycle').removeAttr('disabled');
+  //$('#cycle').removeAttr('disabled');
 
   setAuth(token);
   $.ajax(requests.get);
