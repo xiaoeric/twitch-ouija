@@ -9,6 +9,21 @@ const requests = {
   get: createRequest('GET', 'query')
 };
 
+const timeout = 3000;
+
+var word = "";
+var ouijaOn = false;
+var majority = 0;
+
+// Array of possible inputs from the user
+// var letters = ['a','b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' '];
+
+// Dictionary
+var start = 0;
+var dict = {
+  "a": 0, "b": 0, "c": 0, "d": 0, "e": 0, "f": 0, "g": 0, "h": 0, "i": 0, "j": 0, "k": 0, "l": 0, "m": 0, "n": 0, "o": 0, "p": 0, "q": 0, "r": 0, "s": 0, "t": 0, "u": 0, "v": 0, "w": 0, "x": 0, "y": 0, "z": 0, " ": 0, "end": 0}
+
+
 function createRequest (type, method) {
   return {
     type: type,
@@ -130,6 +145,67 @@ function drawViz() {
   }
 
   update(testData);
+}
+
+function getVote() {
+    document.getElementById("output").innerHTML = "Voted";
+    var voteObj = document.getElementById("vote");
+    var vote = voteObj.value.toLowerCase();
+
+    if (ouijaOn === false) {
+      document.getElementById("output").innerHTML = "Ouija false";
+      document.getElementById("output").innerHTML = vote;
+      if (vote === "start"){
+        document.getElementById("output").innerHTML = "Start";
+        start++;
+        // Filler for finding audience number later
+        if (start > majority) {
+          ouijaOn = true;
+          document.getElementById("output").innerHTML = "Ouija is on";
+          setTimeout(() => {
+            chooseAndReset();
+          }, timeout);
+        }
+      }
+    }
+
+    if (ouijaOn === true) {
+      document.getElementById("output").innerHTML = "Ouija true";
+      for (var key in dict) {
+        if (vote === key) {
+          var count = dict[key];
+          count++;
+          dict[key] = count;
+          document.getElementById("output").innerHTML = dict[key] + " people voted for " + key;
+        }
+      }
+    }
+}
+
+function chooseAndReset() {
+  document.getElementById("output").innerHTML = "choose and reset";
+  var max = 0;
+  var maxKey = "";
+  for (var key in dict) {
+    if (dict[key] > max) {
+      max = dict[key];
+      maxKey = key;
+    }
+  }
+  for (key in dict) {
+    dict[key] = 0;
+  }
+  if (maxKey === "end") {
+    ouijaOn = false;
+    document.getElementById("message").innerHTML = word;
+    word = "";
+  } else {
+    word = word + maxKey;
+    document.getElementById("message").innerHTML = word;
+    setTimeout(() => {
+      chooseAndReset();
+    }, timeout);
+  }
 }
 
 $(function () {
