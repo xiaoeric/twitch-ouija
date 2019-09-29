@@ -74,6 +74,7 @@ var socket = io("http://localhost:8081");
 function votingFinished() {
   disableVoting();
   $("#start").show();
+  $("#start").prop("disabled", false);
   $("#vote").hide();
   $("#submit").hide();
 }
