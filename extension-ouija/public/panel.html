@@ -23,24 +23,38 @@
         .time {
             float: right;
         }
+
+        input {
+            height: 2em;
+            background-color:  white;
+            border: 0;
+            margin-right: 0.3cm;
+            font-family: 'Helvetica Neue', Helvetica, sans-serif;
+            font-weight: bold;
+        }
+
     </style>
 </head>
 <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
     <div id="app" class="full-height"></div>
     <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"
             integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
             crossorigin="anonymous"></script>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="viewer.js" type="text/javascript"></script>
-    <div class="bar"><span class="smol-text">OUIJA</span></div>
-    <div class="viz"></div>
     <div class="bar">
         <span class="smol-text">MESSAGE</span>
-        <h2 id="message" style="margin: 0; margin-top: 0.2em"><span class="time">15s</span></h4>
+        <h2 style="margin: 0; margin-top: 0.2em"><span id="output">(empty)</span><span class="time">15s</span></h4>
+    </div>
+    <div class="viz">
+        <h2>Non-pretentious placeholder text</h2>
+    </div>
+    <div class="bar">
+        <input id="vote" type="text" name="name" class="class" value="" id="vote"/>
+        <input id="submit" type="button" onclick="getVote()" value="Submit">
+        <input id="start" type="button" onclick="startVote()" value="Start">
     </div>
 </body>
-    <input type="text" name="name" class="class" value="" id="vote"/>
-    <input type="button" onclick="getVote()" value="Submit">
-    <p id="output"></p>
 </html>

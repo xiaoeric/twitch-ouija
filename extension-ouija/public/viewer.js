@@ -69,145 +69,65 @@ function logSuccess(hex, status) {
   twitch.rig.log('EBS request returned '+hex+' ('+status+')');
 }
 
+var socket = io("http://localhost:8081");
+
 function drawViz() {
-  // TODO TEMP
-  const testData = [
-    {'letter': 'D', 'count': 1111},
-    {'letter': 'B', 'count': 2313},
-    {'letter': 'C', 'count': 2313},
-    {'letter': 'A', 'count': 3512},
-    {'letter': 'E', 'count': 5512},
-  ];
+  // TODO
+}
 
-  const margin = {left: 4, right: 8, top: 4, bottom: 4};
-  const width = 318 - margin.left - margin.right;
-  // Full height is 496
-  const height = 184 - margin.top - margin.bottom;
+function votingFinished() {
+  disableVoting();
+  $("#start").show();
+  $("#vote").hide();
+  $("#submit").hide();
+}
 
-  var xAxis = d3.scaleLinear().range([0, width]);
-  var yAxis = d3.scaleBand().range([height, 0]).padding(0.1);
+function disableVoting() {
+  $("#vote").prop("disabled", true);
+  $("#submit").prop("disabled", true);
+}
 
-  var svg = d3.select(".viz").append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-      .attr("transform", `translate(${margin.left}, ${margin.top})`);
+function enableVoting(word) {
+  $("#vote").show();
+  $("#submit").show();
+  $("#start").hide();
 
-  function update(data) {
-    const t = d3.transition().duration(500);
-    const bar = svg.selectAll("g").data(data);
+  $("#vote").val("");
 
-    xAxis.domain([0, d3.max(data, d => d.count)]);
-    yAxis.domain(data.map(d => d.letter));
-
-    // EXIT
-    bar.exit().transition(t).remove()
-
-    // UPDATE
-    bar.transition(t)
-      .attr("transform", (d) => `translate(${xAxis(d.count)}, ${yAxis(d.letter)})`)
-
-    bar.select("rect").transition(t)
-      .attr("width", d => xAxis(d.count))
-
-    bar.select("text").transition(t)
-      .tween("text", d => {
-        const v0 = this.textContent || "0";
-        const v1 = d.count;
-        const i = d3.interpolateRound(v0, v1);
-        return t => this.textContent = i(t);
-      });
-
-    // ENTER
-    const barEnter = bar
-      .enter().append("g")
-        .attr("transform", (d) => `translate(${margin.left}, ${height - margin.bottom})`)
-
-    barEnter.transition(t)
-      .attr("transform", d => `translate(${margin.left}, ${yAxis(d.letter)})`);
-
-    const rect = barEnter.append("rect")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("height", yAxis.bandwidth())
-      .style("fill", "steelblue")
-      .attr("width", 0);
-
-    rect.transition(t).attr("width", d => xAxis(d.count));
-
-    const text = barEnter.append("text")
-      .text(d => `${d.letter}: ${d.count}`)
-      .attr("text-anchor", "right")
-      .style("font-size", "10px")
-      .style("fill", "white")
-      .attr("dx", d => xAxis(d.count) - 40)
-      .attr("dy", yAxis.bandwidth() / 2 + 2.5);
-  }
-
-  update(testData);
+  $("#vote").prop("disabled", false);
+  $("#submit").prop("disabled", false);
+  $("#start").hide();
+  $("#output").text(word);
 }
 
 function getVote() {
-    document.getElementById("output").innerHTML = "Voted";
-    var voteObj = document.getElementById("vote");
-    var vote = voteObj.value.toLowerCase();
-
-    if (ouijaOn === false) {
-      document.getElementById("output").innerHTML = "Ouija false";
-      document.getElementById("output").innerHTML = vote;
-      if (vote === "start"){
-        document.getElementById("output").innerHTML = "Start";
-        start++;
-        // Filler for finding audience number later
-        if (start > majority) {
-          ouijaOn = true;
-          document.getElementById("output").innerHTML = "Ouija is on";
-          setTimeout(() => {
-            chooseAndReset();
-          }, timeout);
-        }
-      }
-    }
-
-    if (ouijaOn === true) {
-      document.getElementById("output").innerHTML = "Ouija true";
-      for (var key in dict) {
-        if (vote === key) {
-          var count = dict[key];
-          count++;
-          dict[key] = count;
-          document.getElementById("output").innerHTML = dict[key] + " people voted for " + key;
-        }
-      }
-    }
+  socket.emit("vote", $("#vote").val().toLowerCase());
+  disableVoting();
 }
 
-function chooseAndReset() {
-  document.getElementById("output").innerHTML = "choose and reset";
-  var max = 0;
-  var maxKey = "";
-  for (var key in dict) {
-    if (dict[key] > max) {
-      max = dict[key];
-      maxKey = key;
-    }
-  }
-  for (key in dict) {
-    dict[key] = 0;
-  }
-  if (maxKey === "end") {
-    ouijaOn = false;
-    document.getElementById("message").innerHTML = word;
-    word = "";
-  } else {
-    word = word + maxKey;
-    document.getElementById("message").innerHTML = word;
-    setTimeout(() => {
-      chooseAndReset();
-    }, timeout);
-  }
+function startVote() {
+  socket.emit("start");
+  $("#start").prop("disabled", true);
 }
 
 $(function () {
   drawViz();
+
+  socket.on("status", function(word) {
+    // This happens on connect.
+    console.log(word);
+    if (word) {
+      enableVoting(word);
+    } else {
+      votingFinished();
+    }
+  });
+
+  socket.on("voting start", function(word) {
+    enableVoting(word);
+  });
+
+  socket.on("voting end", function(ignore) {
+    votingFinished();
+  });
 });

@@ -60,22 +60,10 @@ if (fs.existsSync(serverPathRoot + '.crt') && fs.existsSync(serverPathRoot + '.k
   };
 }
 const server = new Hapi.Server(serverOptions);
+const io = require("socket.io")(server.listener);
 
 (async () => {
   // Handle a viewer request to cycle the color.
-  server.route({
-    method: 'POST',
-    path: '/color/cycle',
-    handler: colorCycleHandler
-  });
-
-  // Handle a new viewer requesting the color.
-  server.route({
-    method: 'GET',
-    path: '/color/query',
-    handler: colorQueryHandler
-  });
-
   // Start the server.
   await server.start();
   console.log(STRINGS.serverStarted, server.info.uri);
@@ -120,31 +108,64 @@ function verifyAndDecode (header) {
   throw Boom.unauthorized(STRINGS.invalidAuthHeader);
 }
 
-function colorCycleHandler (req) {
-  // Verify all requests.
-  const payload = verifyAndDecode(req.headers.authorization);
-  const { channel_id: channelId, opaque_user_id: opaqueUserId } = payload;
+// USER CODE
+const timeout = 10000;
 
-  // Store the color for the channel.
-  let currentColor = channelColors[channelId] || initialColor;
+var word = "";
+var ouijaOn = false;
+var majority = 0;
 
-  // Rotate the color as if on a color wheel.
-  verboseLog(STRINGS.cyclingColor, channelId, opaqueUserId);
-  currentColor = color(currentColor).rotate(colorWheelRotation).hex();
+// Dictionary
+var start = 0;
+var dict = {
+  "a": 0, "b": 0, "c": 0, "d": 0, "e": 0, "f": 0, "g": 0, "h": 0, "i": 0, "j": 0, "k": 0, "l": 0, "m": 0, "n": 0, "o": 0, "p": 0, "q": 0, "r": 0, "s": 0, "t": 0, "u": 0, "v": 0, "w": 0, "x": 0, "y": 0, "z": 0, " ": 0, "end": 0
+};
 
-  // Save the new color for the channel.
-  channelColors[channelId] = currentColor;
+io.on("connection", function(socket) {
+  socket.emit("status", ouijaOn ? word : ouijaOn);
 
-  return currentColor;
-}
+  socket.on("vote", function(letter) {
+    console.log(`vote! ${letter}`);
+    if (letter in dict && ouijaOn) {
+      dict[letter]++;
+    }
+  });
 
-function colorQueryHandler (req) {
-  // Verify all requests.
-  const payload = verifyAndDecode(req.headers.authorization);
+  socket.on("start", function(ignore) {
+    console.log(`start vote!`);
+    if (!ouijaOn) {
+      start++;
+      if (start >= majority) {
+        ouijaOn = true;
+        setTimeout(chooseAndReset, timeout);
+        io.emit('voting start', "");
+      }
+    }
+  })
+});
 
-  // Get the color for the channel from the payload and return it.
-  const { channel_id: channelId, opaque_user_id: opaqueUserId } = payload;
-  const currentColor = color(channelColors[channelId] || initialColor).hex();
-  verboseLog(STRINGS.sendColor, currentColor, opaqueUserId);
-  return currentColor;
+function chooseAndReset() {
+  var max = 0;
+  var maxKey = "";
+  for (var key in dict) {
+    if (dict[key] > max) {
+      max = dict[key];
+      maxKey = key;
+    }
+  }
+  for (key in dict) {
+    dict[key] = 0;
+  }
+  if (maxKey === "end") {
+    ouijaOn = false;
+    word = "";
+    for (var key in dict) {
+      dict[key] = 0;
+    }
+    io.emit("voting end");
+  } else {
+    word = word + maxKey;
+    io.emit("voting start", word);
+    setTimeout(chooseAndReset, timeout);
+  }
 }
