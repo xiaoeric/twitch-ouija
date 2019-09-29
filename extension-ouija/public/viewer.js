@@ -71,10 +71,6 @@ function logSuccess(hex, status) {
 
 var socket = io("http://localhost:8081");
 
-function drawViz() {
-  // TODO
-}
-
 function votingFinished() {
   disableVoting();
   $("#start").show();
@@ -97,7 +93,7 @@ function enableVoting(word) {
   $("#vote").prop("disabled", false);
   $("#submit").prop("disabled", false);
   $("#start").hide();
-  $("#output").text(word);
+  $("#output").text((word === "") ? "(empty)" : word);
 }
 
 function getVote() {
@@ -111,7 +107,63 @@ function startVote() {
 }
 
 $(function () {
-  drawViz();
+  // CHART
+  const margin = {left: 32, right: 8, top: 4, bottom: 20};
+  const width = 318 - margin.left - margin.right;
+  // Full height is 496
+  const height = 172 - margin.top - margin.bottom;
+
+  var xAxis = d3.scaleLinear().range([0, width]);
+  var yAxis = d3.scaleBand().range([height, 0]).padding(0.1);
+
+  var svg = d3.select(".viz").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+  svg.append('g')
+      .attr('class', 'axis axis--x')
+      .attr('transform', `translate(0, ${height})`)
+      .call(d3.axisBottom(xAxis));
+
+  function update(data) {
+    const t = d3.transition().duration(500);
+    var barsG = svg.select('.bars-g');
+    if (barsG.empty()) {
+      barsG = svg.append('g')
+        .attr('class', 'bars-g');
+    }
+
+    xAxis.domain([0, d3.max(data, d => d.count)]);
+    yAxis.domain(data.map(d => d.letter));
+
+    var axis = svg.select('.axis--y');
+    if (axis.empty()) {
+      axis = svg.append('g')
+        .attr('class', 'axis axis--y');
+    }
+
+    axis.transition(t)
+        .call(d3.axisLeft(yAxis))
+      .selectAll('g');
+
+    const bar = barsG.selectAll(".bar").data(data, d => d.letter);
+
+    // EXIT
+    bar.exit().remove()
+
+    // ENTER + MERGE
+    bar.enter()
+      .append('rect')
+        .attr('class', 'bar')
+        .attr('x', 0)
+        .style("fill", "lavender")
+      .merge(bar).transition(t)
+        .attr('y', d => yAxis(d.letter))
+        .attr('width', d => { console.log(d.count); return xAxis(d.count) })
+        .attr('height', yAxis.bandwidth());
+  }
 
   socket.on("status", function(word) {
     // This happens on connect.
@@ -130,4 +182,11 @@ $(function () {
   socket.on("voting end", function(ignore) {
     votingFinished();
   });
+
+  socket.on("update", function(data) {
+    var max = d3.max(data, i => i.count);
+    max = (max === 0) ? 1 : max;
+    
+    update(data.map(i => { return {'letter': i.letter, 'count': 100 * i.count / max} }).sort((a, b) => (a.count < b.count) ? 1 : -1).slice(0, 5).reverse());
+  })
 });

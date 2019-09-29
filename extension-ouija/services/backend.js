@@ -138,11 +138,17 @@ io.on("connection", function(socket) {
       if (start >= majority) {
         ouijaOn = true;
         setTimeout(chooseAndReset, timeout);
+        setTimeout(sendUpdate, 1000);
         io.emit('voting start', "");
       }
     }
   })
 });
+
+function sendUpdate() {
+  io.emit("update", Object.keys(dict).map(i => { return {'letter': i, 'count': dict[i]}; }));
+  if (ouijaOn) setTimeout(sendUpdate, 1000);
+}
 
 function chooseAndReset() {
   var max = 0;
