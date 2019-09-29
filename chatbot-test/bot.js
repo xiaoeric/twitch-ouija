@@ -87,7 +87,7 @@ function chooseAndReset(target) {
   for (var key in dict) {
     if (dict[key] > max) {
       max = dict[key];
-      maxKey = key;
+      maxKey = key.toLowerCase();
     }
   }
   for (key in dict) {
