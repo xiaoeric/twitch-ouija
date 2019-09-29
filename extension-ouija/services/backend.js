@@ -39,9 +39,6 @@ ext.
   option('-c, --client-id <client_id>', 'Extension client ID').
   parse(process.argv);
 
-const secret = Buffer.from(getOption('secret', 'ENV_SECRET'), 'base64');
-const clientId = getOption('clientId', 'ENV_CLIENT_ID');
-
 const serverOptions = {
   host: 'localhost',
   port: 8081,
@@ -92,20 +89,6 @@ function getOption (optionName, environmentName) {
   })();
   console.log(`Using "${option}" for ${optionName}`);
   return option;
-}
-
-// Verify the header and the enclosed JWT.
-function verifyAndDecode (header) {
-  if (header.startsWith(bearerPrefix)) {
-    try {
-      const token = header.substring(bearerPrefix.length);
-      return jsonwebtoken.verify(token, secret, { algorithms: ['HS256'] });
-    }
-    catch (ex) {
-      throw Boom.unauthorized(STRINGS.invalidJwt);
-    }
-  }
-  throw Boom.unauthorized(STRINGS.invalidAuthHeader);
 }
 
 // USER CODE
